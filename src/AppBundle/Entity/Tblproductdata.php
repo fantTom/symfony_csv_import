@@ -39,7 +39,7 @@ class Tblproductdata
     /**
      * @var string
      *
-     * @ORM\Column(type="string", length=10)
+     * @ORM\Column(type="string", length=10, unique=true)
      */
     private $strproductcode;
 
@@ -137,7 +137,17 @@ class Tblproductdata
 		$this->dtmdiscontinued = $date;
 		return $this;
 	}
-	
+	/**
+	* Set stmtimestamp
+	*
+	* @param \DateTime $stmtimestamp
+	*
+	* @return Tblproductdata
+	*/
+	public function setStmtimestamp($date){
+		$this->stmtimestamp = $date;
+		return $this;
+	}
 	/**
 	* Set stockLevel
 	*
@@ -159,6 +169,6 @@ class Tblproductdata
 		$this->price = $price;
 		return $this;
 	}
-
+	
 }
 

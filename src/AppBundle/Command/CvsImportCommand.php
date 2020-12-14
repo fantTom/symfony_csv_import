@@ -65,40 +65,48 @@ class CvsImportCommand extends ContainerAwareCommand
 			$io->error($e->getMessage());
 			die();
 		}
-			 
+		$repository = $this->getContainer()->get('doctrine')->getRepository('AppBundle:Tblproductdata');
+
 		$io->title('Import CVS file to database');
 		//save data to database
 		foreach ($results as $row) {
 			$product = (new Tblproductdata());
-			$output->write( str_pad($row['Product Code'], 20));
-			if(($row['Stock']>= 10 && $row['Cost in GBP']>= 5)&& $row['Cost in GBP']<= 1000){				
-				$product->setCode($row['Product Code']);				
-				$product->setName($row['Product Name']);
-				$product->setDescription($row['Product Description']);
-				$product->setStock((int)$row['Stock']);	
-				$product->setPrice($row['Cost in GBP']);				
-				$product->setAdder(new \DateTime('now'));
-				if ($row['Discontinued']=='yes'){
-					$product->setDiscontinued(new \DateTime("now"));
+			if (!$repository->findOneByStrproductcode($row['Product Code'])){
+				
+				$output->write( str_pad($row['Product Code'], 20));
+				if(($row['Stock']>= 10 && $row['Cost in GBP']>= 5)&& $row['Cost in GBP']<= 1000){				
+					$product->setCode($row['Product Code']);				
+					$product->setName($row['Product Name']);
+					$product->setDescription($row['Product Description']);
+					$product->setStock((int)$row['Stock']);	
+					$product->setPrice($row['Cost in GBP']);				
+					$product->setAdder(new \DateTime('now'));
+					$product->setStmtimestamp(new \DateTime('now'));
+					if ($row['Discontinued']=='yes'){
+						$product->setDiscontinued(new \DateTime("now"));
+					}
+					try{
+						$entityManager->persist($product);
+					} catch (Exception $e) {
+						$io->error($e->getMessage());
+						continue;
+					} 
+					$successCount ++;
+					$output->writeln('[ok]');
 				}
-				try{
-					$entityManager->persist($product);
-				} catch (Exception $e) {
-					$io->error($e->getMessage());
-					continue;
-				} 
-				$successCount ++;
-				$output->writeln('[ok]');
-			}
-			else{
-				if(empty($row['Stock'])){
-					$errorProduct .= "\n".$row['Product Code'].'  --  Stock is empty.';
-				}
-				if( empty($row['Cost in GBP'])){			
-					$errorProduct .= "\n".$row['Product Code'].'  --  Cost is empty.';
-				}
-				$output->writeln('[error]');
-			}			
+				else{
+					if(empty($row['Stock'])){
+						$errorProduct .= "\n".$row['Product Code'].'  --  Stock is empty.';
+					}
+					if( empty($row['Cost in GBP'])){			
+						$errorProduct .= "\n".$row['Product Code'].'  --  Cost is empty.';
+					}
+					$output->writeln('[error]');
+				}	
+			} else {
+				$errorProduct .= "\n".$row['Product Code'].'  --  Is in the database.';
+				continue;
+			}				
 		}
 		if ($input->getArgument('test') != 'test'){
 			try{
