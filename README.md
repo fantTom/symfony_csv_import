@@ -8,5 +8,7 @@ composer update
 
 chech config to database (app/confug/parameters.yml)
 
+ php app/console doctrine:migrations:migrate 
+
 php app/console cvs:import test
 php app/console cvs:import 
