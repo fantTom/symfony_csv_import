@@ -27,7 +27,7 @@ class CsvController
 
     public function open()
     {
-        $file = '%kernel.root_dir%/../temp/' . $this->path;
+        $file =  __DIR__ . '/../../../temp/' . $this->path;
         if (file_exists($file)) {
             // read cvs file
             $reader = Reader::createFromPath($file, 'r');

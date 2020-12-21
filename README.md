@@ -1,6 +1,6 @@
 # symfony_cvs_import
 
-git clone https://github.com/fantTom/symfony_csv_impor.git
+git clone https://github.com/fantTom/symfony_csv_import.git
 
 cd to directory
 
