@@ -31,15 +31,29 @@ class CsvController
         if (file_exists($file)) {
             // read cvs file
             $reader = Reader::createFromPath($file, 'r');
+
+            $delimiters_list = $reader->fetchDelimitersOccurrence([',', '|'], 10);
+
+            if($delimiters_list[","] > $delimiters_list["|"]){
+                $reader->setDelimiter(',');
+            } else {
+                $reader->setDelimiter('|');
+            }
+
             $input_bom = $reader->getInputBOM();
             //check bom
             if ($input_bom === Reader::BOM_UTF16_LE || $input_bom === Reader::BOM_UTF16_BE) {
                 CharsetConverter::addTo($reader, 'utf-16', 'utf-8');
             }
-            //cvs to array
+
+            if (count($reader->fetchAll())==0) {
+                return 'Invalid file!';
+            }
+            //cvs to object
             return $reader->fetchAssoc();
+
         } else {
-            die();
+            return "File not found!"; //Invalid file!
         }
     }
 
@@ -63,7 +77,7 @@ class CsvController
             //validate
             $errors = $validator->validate($productData);
             if (count($errors) > 0) {
-                array_push( $errorsString , (string)$productData->getCode() . " - " . $errors);
+                array_push($errorsString, (string)$productData->getCode() . " - " . $errors);
                 continue;
             }
             //check for duplicate entry

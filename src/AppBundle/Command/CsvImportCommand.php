@@ -54,16 +54,25 @@ class CsvImportCommand extends ContainerAwareCommand
         try {
             $csv = new CsvController($input->getArgument('path'), $em);
             $data = $csv->open();
-            $message = $csv->import(
-                $data,
-                $validator,
-                5,
-                $input->getArgument('test')
-            );
+//            $io->note(gettype($data));
+//            $io->note($data);
+            if(is_object($data) && !empty($data)){
+                $message = $csv->import(
+                    $data,
+                    $validator,
+                    5,
+                    $input->getArgument('test')
+                );
+            }
+            else {
+                $output->writeln($data);
+                die();
+            }
         } catch (Exception $e) {
             $io->error($e->getMessage());
             die();
         }
+        $output->writeln("Successful!");
         $io->success('Total: ' . $message[1]);
         //show report
         $io->section("Error report:");
